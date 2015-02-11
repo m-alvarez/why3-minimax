@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
+"http://why3.lri.fr/why3session.dtd">
+<why3session shape_version="4">
+<prover id="0" name="CVC3" version="2.4.1" timelimit="15" memlimit="1000"/>
+<prover id="1" name="CVC4" version="1.4" timelimit="15" memlimit="1000"/>
+<prover id="2" name="Alt-Ergo" version="0.95.2" timelimit="15" memlimit="1000"/>
+<prover id="3" name="Z3" version="4.3.2" timelimit="15" memlimit="1000"/>
+<file name="../game.mlw" expanded="true">
+<theory name="NumGame" sum="07c091187932cb8f415fff259c904280">
+ <goal name="WP_parameter legal_moves" expl="VC for legal_moves">
+ <proof prover="0"><result status="valid" time="0.03"/></proof>
+ </goal>
+ <goal name="WP_parameter do_move" expl="VC for do_move">
+ <proof prover="0"><result status="valid" time="0.07"/></proof>
+ </goal>
+ <goal name="WP_parameter init_pos" expl="VC for init_pos">
+ <proof prover="0"><result status="valid" time="0.02"/></proof>
+ </goal>
+ <goal name="WP_parameter test" expl="VC for test">
+ <proof prover="0"><result status="valid" time="0.01"/></proof>
+ </goal>
+</theory>
+<theory name="MiniMax" sum="ef263e8b11b4df75a314ac80518f902a">
+ <goal name="WP_parameter test_minimax" expl="VC for test_minimax">
+ <proof prover="3"><result status="valid" time="0.05"/></proof>
+ </goal>
+</theory>
+<theory name="AlphaBeta" sum="ed542fdc7f4fafac688a91983f9ff1b1">
+ <goal name="WP_parameter alpha_beta" expl="VC for alpha_beta">
+ <transf name="split_goal_wp">
+  <goal name="WP_parameter alpha_beta.1" expl="1. postcondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter alpha_beta.2" expl="2. precondition">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+  <goal name="WP_parameter alpha_beta.3" expl="3. precondition">
+  <proof prover="0"><result status="valid" time="0.03"/></proof>
+  </goal>
+  <goal name="WP_parameter alpha_beta.4" expl="4. variant decrease">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+  <goal name="WP_parameter alpha_beta.5" expl="5. precondition">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+  <goal name="WP_parameter alpha_beta.6" expl="6. postcondition">
+  <proof prover="0"><result status="valid" time="0.20"/></proof>
+  </goal>
+  <goal name="WP_parameter alpha_beta.7" expl="7. precondition">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+  <goal name="WP_parameter alpha_beta.8" expl="8. variant decrease">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter alpha_beta.9" expl="9. precondition">
+  <proof prover="0"><result status="valid" time="0.03"/></proof>
+  </goal>
+  <goal name="WP_parameter alpha_beta.10" expl="10. postcondition">
+  <proof prover="0"><result status="timeout" time="15.00"/></proof>
+  <proof prover="1"><result status="valid" time="0.62"/></proof>
+  </goal>
+  <goal name="WP_parameter alpha_beta.11" expl="11. postcondition">
+  <proof prover="0"><result status="valid" time="0.20"/></proof>
+  </goal>
+  <goal name="WP_parameter alpha_beta.12" expl="12. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter alpha_beta.13" expl="13. variant decrease">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter alpha_beta.14" expl="14. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter alpha_beta.15" expl="15. postcondition">
+  <proof prover="0"><result status="timeout" time="15.01"/></proof>
+  <proof prover="1"><result status="valid" time="0.83"/></proof>
+  </goal>
+  <goal name="WP_parameter alpha_beta.16" expl="16. postcondition">
+  <proof prover="0"><result status="timeout" time="15.01"/></proof>
+  <proof prover="1"><result status="valid" time="0.15"/></proof>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="WP_parameter alpha_beta_minimax" expl="VC for alpha_beta_minimax">
+ <proof prover="2"><result status="valid" time="0.01"/></proof>
+ </goal>
+ <goal name="WP_parameter best_move" expl="VC for best_move">
+ <transf name="split_goal_wp">
+  <goal name="WP_parameter best_move.1" expl="1. precondition">
+  <proof prover="0"><result status="valid" time="0.03"/></proof>
+  </goal>
+  <goal name="WP_parameter best_move.2" expl="2. precondition">
+  <proof prover="0"><result status="valid" time="0.03"/></proof>
+  </goal>
+  <goal name="WP_parameter best_move.3" expl="3. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter best_move.4" expl="4. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter best_move.5" expl="5. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter best_move.6" expl="6. postcondition">
+  <proof prover="0"><result status="valid" time="0.10"/></proof>
+  </goal>
+  <goal name="WP_parameter best_move.7" expl="7. precondition">
+  <proof prover="0"><result status="valid" time="0.03"/></proof>
+  </goal>
+  <goal name="WP_parameter best_move.8" expl="8. postcondition">
+  <proof prover="0"><result status="valid" time="0.11"/></proof>
+  </goal>
+  <goal name="WP_parameter best_move.9" expl="9. exceptional postcondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="WP_parameter test" expl="VC for test">
+ <proof prover="2"><result status="valid" time="0.03"/></proof>
+ </goal>
+</theory>
+<theory name="Dynamic" sum="cec9f80bb0a9d6f7ce31f01cc23e6682" expanded="true">
+ <goal name="WP_parameter minimax_score_invariance_aux" expl="VC for minimax_score_invariance_aux">
+ <transf name="split_goal_wp">
+  <goal name="WP_parameter minimax_score_invariance_aux.1" expl="1. postcondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_score_invariance_aux.2" expl="2. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_score_invariance_aux.3" expl="3. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_score_invariance_aux.4" expl="4. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_score_invariance_aux.5" expl="5. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_score_invariance_aux.6" expl="6. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_score_invariance_aux.7" expl="7. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_score_invariance_aux.8" expl="8. variant decrease">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_score_invariance_aux.9" expl="9. precondition">
+  <proof prover="0"><result status="valid" time="0.03"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_score_invariance_aux.10" expl="10. variant decrease">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_score_invariance_aux.11" expl="11. precondition">
+  <proof prover="0"><result status="valid" time="0.03"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_score_invariance_aux.12" expl="12. postcondition">
+  <proof prover="0"><result status="valid" time="1.08"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_score_invariance_aux.13" expl="13. postcondition">
+  <proof prover="0"><result status="valid" time="1.06"/></proof>
+  <proof prover="1"><result status="timeout" time="15.01"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_score_invariance_aux.14" expl="14. assertion">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_score_invariance_aux.15" expl="15. postcondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_score_invariance_aux.16" expl="16. assertion">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_score_invariance_aux.17" expl="17. postcondition">
+  <proof prover="0"><result status="timeout" time="15.02"/></proof>
+  <proof prover="1"><result status="valid" time="0.08"/></proof>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="minimax_score_invariance">
+ <proof prover="2"><result status="valid" time="0.01"/></proof>
+ </goal>
+ <goal name="WP_parameter minimax_perfect_aux" expl="VC for minimax_perfect_aux">
+ <transf name="split_goal_wp">
+  <goal name="WP_parameter minimax_perfect_aux.1" expl="1. postcondition">
+  <proof prover="0"><result status="timeout" time="15.02"/></proof>
+  <proof prover="1"><result status="valid" time="0.06"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect_aux.2" expl="2. precondition">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect_aux.3" expl="3. precondition">
+  <proof prover="0"><result status="valid" time="0.03"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect_aux.4" expl="4. precondition">
+  <proof prover="0"><result status="valid" time="0.03"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect_aux.5" expl="5. assertion">
+  <proof prover="0"><result status="valid" time="0.03"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect_aux.6" expl="6. variant decrease">
+  <proof prover="0"><result status="valid" time="0.03"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect_aux.7" expl="7. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect_aux.8" expl="8. precondition">
+  <proof prover="0"><result status="valid" time="0.04"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect_aux.9" expl="9. variant decrease">
+  <proof prover="0"><result status="valid" time="0.03"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect_aux.10" expl="10. precondition">
+  <proof prover="0"><result status="valid" time="0.03"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect_aux.11" expl="11. precondition">
+  <proof prover="0"><result status="valid" time="0.08"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect_aux.12" expl="12. postcondition">
+  <proof prover="0"><result status="valid" time="0.08"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect_aux.13" expl="13. postcondition">
+  <proof prover="0"><result status="timeout" time="15.02"/></proof>
+  <proof prover="1"><result status="valid" time="0.10"/></proof>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="WP_parameter minimax_perfect" expl="VC for minimax_perfect">
+ <transf name="split_goal_wp">
+  <goal name="WP_parameter minimax_perfect.1" expl="1. postcondition">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect.2" expl="2. variant decrease">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect.3" expl="3. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect.4" expl="4. precondition">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect.5" expl="5. precondition">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect.6" expl="6. precondition">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect.7" expl="7. precondition">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_perfect.8" expl="8. postcondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="invert_correct">
+ <proof prover="2"><result status="valid" time="0.02"/></proof>
+ </goal>
+ <goal name="WP_parameter minimax_turn_symmetry" expl="VC for minimax_turn_symmetry">
+ <transf name="split_goal_wp">
+  <goal name="WP_parameter minimax_turn_symmetry.1" expl="1. postcondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_turn_symmetry.2" expl="2. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_turn_symmetry.3" expl="3. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_turn_symmetry.4" expl="4. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_turn_symmetry.5" expl="5. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_turn_symmetry.6" expl="6. variant decrease">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_turn_symmetry.7" expl="7. precondition">
+  <proof prover="0"><result status="valid" time="0.03"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_turn_symmetry.8" expl="8. precondition">
+  <proof prover="0"><result status="valid" time="0.03"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_turn_symmetry.9" expl="9. variant decrease">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_turn_symmetry.10" expl="10. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_turn_symmetry.11" expl="11. precondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_turn_symmetry.12" expl="12. postcondition">
+  <proof prover="0"><result status="valid" time="1.54"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_turn_symmetry.13" expl="13. postcondition">
+  <proof prover="0"><result status="valid" time="1.50"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_turn_symmetry.14" expl="14. postcondition">
+  <proof prover="0"><result status="valid" time="0.03"/></proof>
+  </goal>
+  <goal name="WP_parameter minimax_turn_symmetry.15" expl="15. postcondition">
+  <proof prover="0"><result status="timeout" time="15.00"/></proof>
+  <proof prover="1"><result status="valid" time="0.14"/></proof>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="minimax_rec">
+ <proof prover="0"><result status="valid" time="3.80"/></proof>
+ </goal>
+ <goal name="WP_parameter dynamic" expl="VC for dynamic">
+ <transf name="split_goal_wp">
+  <goal name="WP_parameter dynamic.1" expl="1. array creation size">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+  <goal name="WP_parameter dynamic.2" expl="2. postcondition">
+  <proof prover="0"><result status="valid" time="0.12"/></proof>
+  </goal>
+  <goal name="WP_parameter dynamic.3" expl="3. loop invariant init">
+  <proof prover="0"><result status="valid" time="0.07"/></proof>
+  </goal>
+  <goal name="WP_parameter dynamic.4" expl="4. type invariant">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+  <goal name="WP_parameter dynamic.5" expl="5. index in array bounds">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+  <goal name="WP_parameter dynamic.6" expl="6. index in array bounds">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+  <goal name="WP_parameter dynamic.7" expl="7. index in array bounds">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter dynamic.8" expl="8. index in array bounds">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter dynamic.9" expl="9. index in array bounds">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter dynamic.10" expl="10. index in array bounds">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter dynamic.11" expl="11. loop invariant preservation">
+  <proof prover="0"><result status="valid" time="1.47"/></proof>
+  </goal>
+  <goal name="WP_parameter dynamic.12" expl="12. type invariant">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+  <goal name="WP_parameter dynamic.13" expl="13. postcondition">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="WP_parameter test" expl="VC for test">
+ <proof prover="2"><result status="valid" time="0.01"/></proof>
+ </goal>
+ <goal name="WP_parameter dynamic_constant_space" expl="VC for dynamic_constant_space">
+ <transf name="split_goal_wp">
+  <goal name="WP_parameter dynamic_constant_space.1" expl="1. postcondition">
+  <proof prover="0"><result status="valid" time="0.11"/></proof>
+  </goal>
+  <goal name="WP_parameter dynamic_constant_space.2" expl="2. loop invariant init">
+  <proof prover="0"><result status="valid" time="0.04"/></proof>
+  </goal>
+  <goal name="WP_parameter dynamic_constant_space.3" expl="3. index in array bounds">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+  <goal name="WP_parameter dynamic_constant_space.4" expl="4. index in array bounds">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter dynamic_constant_space.5" expl="5. index in array bounds">
+  <proof prover="0"><result status="valid" time="0.02"/></proof>
+  </goal>
+  <goal name="WP_parameter dynamic_constant_space.6" expl="6. loop invariant preservation">
+  <proof prover="0"><result status="valid" time="1.48"/></proof>
+  </goal>
+  <goal name="WP_parameter dynamic_constant_space.7" expl="7. postcondition">
+  <proof prover="0"><result status="valid" time="0.01"/></proof>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="WP_parameter test1" expl="VC for test1" expanded="true">
+ <proof prover="2"><result status="valid" time="0.01"/></proof>
+ </goal>
+</theory>
+</file>
+</why3session>

@@ -1,0 +1,536 @@
+
+
+(** {1 MPRI Project 2015} *)
+
+(** {2 Part 1: the "Num" Game} *)
+
+module NumGame
+
+use import int.Int
+use import array.Array
+use import option.Option
+
+predicate _TO_BE_COMPLETED
+constant _VALUE_TO_BE_COMPLETED : 'a
+
+(** type [player] with two constants [White] and [Black] *)
+
+type player = White | Black
+
+(** a [position] record describes any game state after some
+    number of moves occurred. It is defined by 4 fields:
+
+    . stack: the initial stack of numbers
+    . pos: the position of the next number to take in the stack
+    . turn: the next player to play, white or black
+    . score: the current score of the game
+
+*)
+
+type position = {
+  stack : array int; (* stack of numbers, e.g. [1 ; 10 ; 2 ; 100 ; 3 ] *)
+  pos   : int;       (* position in the stack, i.e. index of the first number
+                        to be picked *)
+  turn  : player;    (* player who will play next move *)
+  score : int;       (* current score = nums of white - nums of black *)
+}
+
+(** helper logic function to increment a score [s] by [v] for the player [p] *)
+function add_score (s:int) (p:player) (v:int) : int =
+  match p with
+  | White -> s + v
+  | Black -> s - v
+  end
+
+
+(** invariant on positions: the current [pos] must be between _moves 0 and
+    the size of the stack, included *)
+predicate inv (p:position) = 0 <= p.pos <= p.stack.length
+
+(** predicate telling if a position [p] is a final position of the game *)
+predicate is_final_position (p:position) = p.pos >= p.stack.length - 1
+
+(** the possible moves: only two possibilities, either pick one
+    number or two *)
+type move = PickOne | PickTwo
+
+(** a logic function giving the reachable positions from a given
+    position [p].  it returns [None] if position [p] is final,
+    otherwise it returns [Some(m1,p1,m2,p2)]: [m1] and [m2] are the
+    possible moves, leading to positions [p1] and [p2] respectively.
+*)
+function next_positions (p:position) : option (move,position,move,position) =
+  if is_final_position p then None else
+  let x = p.stack[p.pos] in let y = p.stack[p.pos+1] in
+  let other_player = match p.turn with
+  | White -> Black
+  | Black -> White
+  end in
+  Some (PickOne,
+     { p with turn = other_player; pos = p.pos + 1;
+       score = add_score p.score p.turn x },
+     PickTwo,
+     { p with turn = other_player; pos = p.pos + 2;
+       score = add_score p.score p.turn (x + y) })
+
+(** [QUESTIONS 1-4] *)
+
+exception GameEnded
+
+(** program function giving the pair of possible moves in a given
+    position. It raises the exception [GameEnded] if position is
+    final. *)
+let legal_moves (p:position) : (move, move)
+  requires { inv p }
+  ensures { match result, next_positions p with
+     | (m1,m2), Some(m3,_,m4,_) ->
+        m3 = m1 /\ m4 = m2
+     | _ -> false
+     end }
+  raises { GameEnded -> is_final_position p }
+= if p.pos >= p.stack.length - 1 then raise GameEnded;
+  (PickOne,PickTwo)
+
+(** [do_move p m] returns the position obtained by playing move [m] on
+    position [p]. Pre-condition forbids to call it with an invalid move. *)
+let do_move (p:position) (m:move) : position
+  requires { inv p /\ not (is_final_position p) }
+  ensures { inv result }
+  ensures {
+      match next_positions p with
+      | None -> False
+      | Some(m1,p1,m2,p2) ->
+        (m = m1 /\ result = p1) \/ (m = m2 /\ result = p2)
+      end
+  }
+= let x = p.stack[p.pos] in let y = p.stack[p.pos+1] in
+  let next_turn = match p.turn with White -> Black | Black -> White end in
+  match m with
+    | PickOne ->
+      { p with turn = next_turn; pos = p.pos + 1; score = add_score p.score p.turn x }
+    | PickTwo ->
+      { p with turn = next_turn; pos = p.pos + 2; score = add_score p.score p.turn (x + y) }
+    end
+
+
+  let init_pos () : position
+    ensures { result.stack.length = 5 }
+    ensures { result.stack[0] = 1 }
+    ensures { result.stack[1] = 10 }
+    ensures { result.stack[2] = 2 }
+    ensures { result.stack[3] = 100 }
+    ensures { result.stack[4] = 3 }
+    ensures { result.pos = 0 }
+    ensures { result.turn = White }
+    ensures { result.score = 0 }
+    ensures { inv result }
+  =
+   let s = Array.make 5 0 in
+   s[0] <- 1;
+   s[1] <- 10;
+   s[2] <- 2;
+   s[3] <- 100;
+   s[4] <- 3;
+   { stack = s; pos = 0; turn = White; score = 0 }
+
+  let test () =
+    let p0 = init_pos () in do_move p0 PickTwo
+
+  (* run the test above using:
+      why3 execute game.mlw NumGame.test *)
+
+end
+
+
+
+
+(** {2 The MiniMax value of a tree of moves} *)
+
+module MiniMax
+
+  use import int.Int
+  use import option.Option
+  use import NumGame
+  use import int.MinMax
+
+  (** [minimax p d] returns the minimax value of position [p] at depth
+      [d].  *)
+  function minimax position int : int
+
+  (* [QUESTION 5] *)
+  axiom minimax_depth_zero :
+    forall p:position. minimax p 0 = score p
+
+  axiom minimax_depth_non_zero:
+    forall p:position, d:int. d > 0 ->
+     minimax p d =
+       match next_positions p with
+       | None -> score p
+       | Some(_,p1,_,p2) ->
+            match turn p with
+            | White ->
+                max (minimax p1 (d - 1)) (minimax p2 (d - 1))
+            | Black ->
+                min (minimax p1 (d - 1)) (minimax p2 (d - 1))
+            end
+       end
+
+  (* [QUESTION 6] *)
+  (** Testing MiniMax on the Num game *)
+
+  let test_minimax () =
+    let p0 = init_pos () in
+    assert { minimax p0 0 = 0 };
+    assert { minimax p0 1 = 11 };
+    assert { minimax p0 2 = -11 };
+    assert { minimax p0 3 = 92 }
+
+
+end
+
+
+
+
+
+(** {2 The alpha-beta algorithm} *)
+
+module AlphaBeta
+
+  use import int.Int
+  use import option.Option
+  use import NumGame
+  use import MiniMax
+  use import int.MinMax
+
+  (** reminder: type [option int] is used to represent values that can
+      be infinite, where [None] represents infinity *)
+
+  (** [lt_alpha_n alpha n] is true whenever alpha < n *)
+  predicate lt_alpha_n (alpha: option int) (n:int) =
+    match alpha with
+    | None -> true
+    | Some a -> a < n
+    end
+
+  (** [lt_n_beta n beta] is true whenever n < beta *)
+  predicate lt_n_beta (n:int) (beta: option int) =
+    match beta with
+    | None -> true
+    | Some b -> n < b
+    end
+
+  (** [max_alpha alpha n] is the maximum of alpha and n *)
+  function max_alpha (alpha: option int) (n:int) : option int =
+    match alpha with
+    | None -> Some n
+    | Some a -> Some (max a n)
+    end
+
+  (** [min_beta n beta n] is the minimum of n and beta *)
+  function min_beta (n:int) (beta: option int) : option int =
+    match beta with
+    | None -> Some n
+    | Some b -> Some (min b n)
+    end
+
+  (* [QUESTIONS 7-8] *)
+  (** [alpha_beta alpha b p d] returns the alpha-beta value of
+      position [p] at depth [d] within the interval [alpha,beta] *)
+  let rec alpha_beta alpha beta p d : int
+    requires { inv p /\ d >= 0 } 
+    variant  { (d : int) }
+    ensures  { 
+        (((lt_alpha_n alpha (minimax p d)) /\ (lt_n_beta (minimax p d) beta))
+            -> minimax p d = result)
+        /\ ((not (lt_alpha_n alpha (minimax p d))) -> not (lt_alpha_n alpha result))
+        /\ ((not (lt_n_beta (minimax p d) beta)) -> not (lt_n_beta result beta))
+    }
+  =
+    if d = 0 then score p else 
+    try
+      match legal_moves p with (m1,m2) ->
+          let v1 = alpha_beta alpha beta (do_move p m1) (d - 1) in
+          match turn p with
+          | White ->
+            if not (lt_n_beta v1 beta) then v1 else
+                let v2 = alpha_beta (max_alpha alpha v1) beta (do_move p m2) (d - 1) in
+                max v1 v2
+          | Black ->
+            if not (lt_alpha_n alpha v1) then v1 else
+                let v2 = alpha_beta alpha (min_beta v1 beta) (do_move p m2) (d - 1) in
+                min v1 v2
+          end
+      end
+    with GameEnded -> score p
+    end
+
+  (* This isn't required, but I like to be extra safe *)
+  let alpha_beta_minimax (p : position) (d : int)
+    requires { inv p /\ d >= 0 }
+    ensures { result = minimax p d }
+  = alpha_beta None None p d
+
+  (* [QUESTIONS 9-10] *)
+  (** [best_move p d] returns the best move to play on position [p] as
+      given by the alpha-beta algorithm at depth [d] *)
+  let best_move p d : move
+    requires { inv p /\ d >= 0 }
+    ensures  {
+        match next_positions p with
+        | None -> False
+        | Some (m1,p1,m2,p2) ->
+            match p.turn with
+            | White ->
+                (minimax p1 d > minimax p2 d -> result = m1)
+                /\ (minimax p1 d < minimax p2 d -> result = m2)
+            | Black ->
+                (minimax p1 d > minimax p2 d -> result = m2)
+                /\ (minimax p1 d < minimax p2 d -> result = m1)
+            end
+        end
+    }
+    raises { GameEnded -> is_final_position p }
+  = match legal_moves p with (m1,m2) ->
+      let p1 = do_move p m1 in
+      let v = alpha_beta None None p1 d in
+      let p2 = do_move p m2 in
+      match p.turn with
+      | White -> 
+            if alpha_beta (Some v) (Some (v + 1)) p2 d > v
+                then m2
+                else m1
+      | Black -> 
+            if alpha_beta (Some (v - 1)) (Some v) p2 d < v
+                then m2
+                else m1
+      end
+    end
+
+  let test ()
+    raises { GameEnded -> true }
+  =
+    let p0 = init_pos () in
+    (best_move p0 0,
+     best_move p0 1,
+     best_move p0 2,
+     best_move p0 3,
+     best_move p0 4,
+     best_move p0 5)
+
+  (* run the test above using:
+      why3 execute game.mlw AlphaBeta.test *)
+
+end
+
+
+
+
+
+
+(** {2 An efficient algorithm for the Num game} *)
+
+(** Best move found by dynamic programming *)
+
+module Dynamic
+
+    use import int.Int
+    use import int.MinMax
+    use import NumGame
+    use import array.Array
+    use import MiniMax
+    use import option.Option
+
+    function invert (p : player) : player =
+        match p with
+        | White -> Black
+        | Black -> White
+        end
+
+    (* [QUESTIONS 11-12] *)
+    (** invariance of minimax value with respect to initial score *)
+    let rec lemma minimax_score_invariance_aux 
+        (s : array int) (p : int) (t : player) (sc a : int) (d : int)
+        variant { d }
+        requires { d >= 0 /\ 0 <= p <= length s}
+        ensures { minimax { stack = s; pos = p; turn = t; score = sc + a } d =
+                    a + minimax { stack = s; pos = p; turn = t; score = sc } d }
+        =
+        if d = 0
+        then ()
+        else
+        let pos1 = { stack = s; pos = p; turn = t; score = sc + a } in
+        let pos2 = { stack = s; pos = p; turn = t; score = sc } in
+        try
+            match (legal_moves pos1, legal_moves pos2) with
+            | ((m1, m2), (n1, n2)) ->
+                let p1 = do_move pos1 m1 in
+                let p2 = do_move pos1 m2 in
+                let q1 = do_move pos2 n1 in
+                let q2 = do_move pos2 n2 in
+                (minimax_score_invariance_aux
+                    (stack p1) (pos p1) (turn p1) (score q1) a (d - 1);
+                minimax_score_invariance_aux
+                    (stack p2) (pos p2) (turn p2) (score q2) a (d - 1));
+                match t with
+                | Black -> ()
+                | White -> ()
+                end
+            end
+        with GameEnded ->
+            assert { is_final_position pos1 /\ is_final_position pos2 }
+        end
+
+    lemma minimax_score_invariance :
+      forall s:array int, p:int, t:player, sc:int, d:int.
+        (d >= 0 /\ 0 <= p <= length s) ->
+        (minimax { stack = s; pos = p; turn = t; score = sc } d =
+            sc + minimax { stack = s; pos = p; turn = t; score = 0 } d)
+        (* relate minimax values of positions
+             { stack = s ; pos = p ; turn = t ; score = sc }
+           and
+             { stack = s ; pos = p ; turn = t ; score = 0 }
+        *)
+
+    (** this lemma states that if minimax depth is equal to the depth of
+       the tree, then its result is "perfect" *)
+    let rec lemma minimax_perfect_aux (p : position) (d : int)
+        variant { d }
+        requires { inv p }
+        requires { 0 <= length p.stack - p.pos <= d }
+        ensures { minimax p (d + 1) = minimax p d }
+        =
+        if d = 0 then () 
+        else try match legal_moves p with (m1, m2) ->
+            let (p1, p2) = (do_move p m1, do_move p m2) in
+            assert { p1.pos > p.pos /\ p2.pos > p.pos };
+            minimax_perfect_aux p1 (d - 1);
+            minimax_perfect_aux p2 (d - 1)
+        end
+        with GameEnded -> () end
+
+    let rec lemma minimax_perfect (p : position) (d : int) (a : int)
+        variant { a }
+        requires { inv p }
+        requires { a >= 0 }
+        requires { 0 <= length p.stack - p.pos <= d }
+        ensures { minimax p (d + a) = minimax p d }
+        =
+        if a = 0 then ()
+        else (minimax_perfect p d (a - 1); minimax_perfect_aux p (d + a - 1))
+
+    (** this is necessary, apparently non-ghost terms don't unfold invert *)
+    lemma invert_correct : forall p : player.
+        invert p = match p with White -> Black | Black -> White end
+
+    (** this lemma exposes the symmetry between player and opponent *)
+    let rec lemma minimax_turn_symmetry
+        (p : position) (d : int)
+        variant { d }
+        requires { inv p }
+        requires { d >= 0 }
+        ensures {
+            let p' = { p with turn = invert p.turn; score = -p.score } in
+            minimax p d = - minimax p' d
+        }
+        =
+        if d = 0 then () else try
+        let p' = { p with turn = invert p.turn; score = -p.score } in
+            match legal_moves p, legal_moves p' with (_, (n1, n2)) ->
+                let (q1, q2) = (do_move p' n1, do_move p' n2) in
+                minimax_turn_symmetry q1 (d - 1);
+                minimax_turn_symmetry q2 (d - 1);
+                match p.turn with
+                | Black -> ()
+                | White -> ()
+                end
+            end
+        with GameEnded -> () end
+
+    (** this lemma allows us to compute minimax using only the case where White
+       plays *)
+    lemma minimax_rec :
+        forall p : position, d : int.
+        d > 0 ->
+        inv p /\ p.turn = White ->
+        match next_positions p with
+        | None -> is_final_position p
+        | Some _ ->
+            let p1 = { p with pos = p.pos + 1; score = 0 } in
+            let p2 = { p with pos = p.pos + 2; score = 0 } in 
+            minimax p d =
+                p.score +
+                    max (p.stack[p.pos] - minimax p1 (d - 1))
+                        (p.stack[p.pos] + p.stack[p.pos + 1] - minimax p2 (d - 1))
+        end
+
+    (* [QUESTION 14] *)
+    (** dynamic invariant  *)
+    predicate dynamic_inv (stack:array int) (n:int) (a:array int) =
+        forall i:int.
+        n < i <= length stack ->
+        let p = { stack = stack; pos = i; turn = White; score = 0 } in
+        a[i] = minimax p (length stack - i)
+
+    (* [QUESTION 13 and 15] *)
+    (** Note that instead of returning just a single value, it returns an
+       array of all the values for minimax, computed for the depth of the tree. *)
+    let dynamic (stack : array int) : array int
+        ensures { 
+            forall i:int. 0 <= i <= length stack ->
+            let p = { stack = stack; pos = i; turn = White; score = 0 } in
+            result[i] = minimax p (length stack - i)
+        }
+        =
+        let l = stack.length in
+        let a = Array.make (l+1) 0 in
+        for n = l-2 downto 0 do
+            invariant { dynamic_inv stack n a }
+            a[n] <- max (stack[n] + stack[n+1] - a[n+2]) (stack[n] - a[n+1]);
+        done;
+        a
+
+      let test () =
+        let p0 = init_pos () in
+        (dynamic p0.stack)
+
+      (* run the test above using:
+          why3 execute game.mlw Dynamic.test *)
+
+    (* [QUESTION 16] *)
+    (** this version uses the fact that the dynamic algorithm only needs two elements
+       in the array in every iteration to compute the same result in constant space *)
+    predicate dynamic_constant_space_inv (stack : array int) (n : int) (a1 a2 : int) =
+        let p1 = { stack = stack; pos = n+1; turn = White; score = 0 } in
+        let p2 = { stack = stack; pos = n+2; turn = White; score = 0 } in
+        a1 = minimax p1 (length stack - n - 1) /\
+        a2 = minimax p2 (length stack - n - 2)
+
+    use import ref.Ref
+    let dynamic_constant_space (stack : array int) : int
+        ensures { result = minimax {stack=stack;pos=0;turn=White;score=0} (length stack) }
+        =
+        let l = stack.length in
+        let a1 = ref 0 in
+        let a2 = ref 0 in
+        for n = l-2 downto 0 do
+            invariant { dynamic_constant_space_inv stack n !a1 !a2 }
+            let a1' = !a1 in
+            a1 := max (stack[n] + stack[n+1] - !a2) (stack[n] - !a1);
+            a2 := a1'
+        done;
+        !a1
+
+    let test1 () =
+        let p0 = init_pos () in
+        let ghost a = dynamic_constant_space p0.stack in
+        let ghost b = dynamic p0.stack in
+        assert { a = b[0] };
+        dynamic_constant_space p0.stack
+
+end
+
+(***
+Local Variables:
+compile-command: "why3 ide game.mlw"
+End:
+*)
